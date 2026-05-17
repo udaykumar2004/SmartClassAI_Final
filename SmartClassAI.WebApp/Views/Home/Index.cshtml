@@ -1,0 +1,68 @@
+@{
+    ViewData["Title"] = "Welcome";
+    bool isLoggedIn = User.Identity?.IsAuthenticated == true;
+}
+
+<section class="landing-hero">
+    <div class="row align-items-center g-4 position-relative" style="z-index:1">
+        <div class="col-lg-7">
+            <h1>Learn smarter with SmartClass AI</h1>
+            <p class="mb-4">
+                A modern classroom platform for teachers and students — assignments, live meetings,
+                real-time chat, and role-based access in one beautiful workspace.
+            </p>
+            @if (!isLoggedIn)
+            {
+                <motion class="d-flex flex-wrap gap-2">
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-light btn-lg rounded-3 fw-bold px-4">
+                        Get started free
+                    </a>
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light btn-lg rounded-3 px-4">
+                        Sign in
+                    </a>
+                </motion>
+            }
+            else
+            {
+                <a asp-controller="Classroom" asp-action="Index" class="btn btn-light btn-lg rounded-3 fw-bold px-4">
+                    Go to my classes
+                </a>
+            }
+        </div>
+        <div class="col-lg-5 text-center d-none d-lg-block">
+            <i class="fa-solid fa-chalkboard-user" style="font-size:8rem;opacity:0.35"></i>
+        </div>
+    </div>
+</section>
+
+<div class="feature-grid mb-5">
+    <div class="feature-tile">
+        <i class="fa-solid fa-book-open d-block"></i>
+        <h5 class="fw-bold">Classrooms</h5>
+        <p class="text-muted small mb-0">Create or join with a code. Teachers can also enroll as students in other classes.</p>
+    </div>
+    <div class="feature-tile">
+        <i class="fa-solid fa-file-lines d-block"></i>
+        <h5 class="fw-bold">Assignments</h5>
+        <p class="text-muted small mb-0">Publish work, collect submissions, grade with feedback — all in one stream.</p>
+    </div>
+    <motion class="feature-tile">
+        <i class="fa-solid fa-video d-block"></i>
+        <h5 class="fw-bold">Live meetings</h5>
+        <p class="text-muted small mb-0">Start or join video sessions directly from your classroom.</p>
+    </motion>
+    <div class="feature-tile">
+        <i class="fa-solid fa-shield-halved d-block"></i>
+        <h5 class="fw-bold">Secure roles</h5>
+        <p class="text-muted small mb-0">Admin, teacher, and student permissions with classroom-level access control.</p>
+    </div>
+</div>
+
+<div class="glass-card p-4 text-center">
+    <h4 class="fw-bold mb-2">Ready to transform your classroom?</h4>
+    <p class="text-muted mb-3">Join thousands of educators building the future of learning.</p>
+    @if (!isLoggedIn)
+    {
+        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-sc-primary btn-lg">Create your account</a>
+    }
+</div>

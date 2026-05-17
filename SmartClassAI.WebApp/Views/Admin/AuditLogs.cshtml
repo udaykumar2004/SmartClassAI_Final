@@ -1,0 +1,20 @@
+@model IEnumerable<SmartClassAI.Models.ActivityLog>
+
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h4 class="mb-4"><i class="fa fa-list me-2"></i>System Activity</h4>
+        <ul class="list-group list-group-flush">
+            @foreach (var log in Model)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>@log.Message</span>
+                    <small class="text-muted">@log.CreatedAt.ToString("g")</small>
+                </li>
+            }
+        </ul>
+    </div>
+</div>

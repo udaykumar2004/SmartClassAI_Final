@@ -1,0 +1,237 @@
+﻿@page
+@model RegisterModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    }
+
+    .register-card {
+        backdrop-filter: blur(12px);
+        background: rgba(255,255,255,0.92);
+        border-radius: 20px;
+    }
+
+    .brand-title {
+        font-weight: 800;
+        color: #2563eb;
+    }
+
+    .social-btn {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+
+        .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+    .google-btn {
+        border: 1px solid #db4437;
+        color: #db4437;
+    }
+
+        .google-btn:hover {
+            background: #db4437;
+            color: white;
+        }
+
+    .facebook-btn {
+        border: 1px solid #1877f2;
+        color: #1877f2;
+    }
+
+        .facebook-btn:hover {
+            background: #1877f2;
+            color: white;
+        }
+
+    .linkedin-btn {
+        border: 1px solid #0a66c2;
+        color: #0a66c2;
+    }
+
+        .linkedin-btn:hover {
+            background: #0a66c2;
+            color: white;
+        }
+</style>
+
+<div class="container py-5">
+
+    <div class="row justify-content-center align-items-center">
+
+        <!-- REGISTER FORM -->
+        <div class="col-lg-5">
+
+            <div class="card register-card shadow-lg border-0">
+
+                <div class="card-body p-5">
+
+                    <div class="text-center mb-4">
+
+                        <h2 class="brand-title">
+                            🎓 SmartClass AI
+                        </h2>
+
+                        <p class="text-muted">
+                            Create your account to start learning
+                        </p>
+
+                    </div>
+
+                    <form id="registerForm"
+                          asp-route-returnUrl="@Model.ReturnUrl"
+                          method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
+                        </div>
+
+                        <!-- FULL NAME -->
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.FullName"
+                                   class="form-control rounded-3"
+                                   placeholder="Full Name" />
+                            <label>Full Name</label>
+                        </div>
+
+                        <!-- EMAIL -->
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Email"
+                                   class="form-control rounded-3"
+                                   placeholder="name@example.com" />
+                            <label>Email Address</label>
+                        </div>
+
+                        <!-- PASSWORD -->
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Password"
+                                   class="form-control rounded-3"
+                                   placeholder="Password" />
+                            <label>Password</label>
+                        </div>
+
+                        <!-- CONFIRM PASSWORD -->
+                        <div class="form-floating mb-4">
+                            <input asp-for="Input.ConfirmPassword"
+                                   class="form-control rounded-3"
+                                   placeholder="Confirm Password" />
+                            <label>Confirm Password</label>
+                        </div>
+
+                        <!-- REGISTER BUTTON -->
+                        <button type="submit"
+                                class="btn btn-primary w-100 btn-lg rounded-3 shadow-sm">
+
+                            Create Account
+
+                        </button>
+
+                    </form>
+
+                    <div class="text-center mt-4">
+
+                        <p class="text-muted mb-1">
+                            Already have an account?
+                        </p>
+
+                        <a asp-page="./Login"
+                           class="fw-semibold text-decoration-none">
+
+                            Login here
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SOCIAL LOGIN -->
+        <div class="col-lg-4 mt-4 mt-lg-0">
+
+            <div class="card shadow border-0 rounded-4">
+
+                <div class="card-body p-4 text-center">
+
+                    <h4 class="fw-bold mb-3">
+                        Or Sign Up With
+                    </h4>
+
+                    <hr />
+
+                    @if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                    {
+                        <div class="alert alert-warning">
+                            External authentication not configured
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-page="./ExternalLogin"
+                              asp-route-returnUrl="@Model.ReturnUrl"
+                              method="post">
+
+                            <div class="d-grid gap-3">
+
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    if (provider.Name == "Google")
+                                    {
+                                        <button class="btn social-btn google-btn btn-lg"
+                                                name="provider"
+                                                value="@provider.Name">
+                                            <i class="fab fa-google me-2"></i>
+                                            Continue with Google
+                                        </button>
+                                    }
+
+                                    else if (provider.Name == "Facebook")
+                                    {
+                                        <button class="btn social-btn facebook-btn btn-lg"
+                                                name="provider"
+                                                value="@provider.Name">
+                                            <i class="fab fa-facebook me-2"></i>
+                                            Continue with Facebook
+                                        </button>
+                                    }
+
+                                    else if (provider.Name == "LinkedIn")
+                                    {
+                                        <button class="btn social-btn linkedin-btn btn-lg"
+                                                name="provider"
+                                                value="@provider.Name">
+                                            <i class="fab fa-linkedin me-2"></i>
+                                            Continue with LinkedIn
+                                        </button>
+                                    }
+                                }
+
+                            </div>
+
+                        </form>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

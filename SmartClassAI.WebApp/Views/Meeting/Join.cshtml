@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Join Meeting";
+}
+
+<h2>Join Meeting</h2>
+
+<form method="get" action="/Meeting/Start">
+    <input type="hidden" name="classroomId" value="@Context.Request.Query["classroomId"]" />
+
+    <button type="submit" class="btn btn-primary">
+        Join Now
+    </button>
+</form>

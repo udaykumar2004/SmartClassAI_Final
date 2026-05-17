@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SmartClassAI.DataAccess/SmartClassAI.DataAccess.csproj" Id="b9fa9b40-b221-4c2b-adf3-2adcf533c223" />
+  <Project Path="SmartClassAI.WebApp/SmartClassAI.WebApp.csproj" Id="bb471e65-6cfb-48af-a400-e88cbfd3f138" />
+  <Project Path="SmartClassIAI.Models/SmartClassIAI.Models.csproj" Id="40418bd0-36f2-4e87-9bdf-befd88f151c6" />
+</Solution>

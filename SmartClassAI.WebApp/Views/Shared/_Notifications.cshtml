@@ -1,0 +1,67 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    window.SmartNotify = {
+        toastSuccess(msg) { toastr.success(msg); },
+        toastError(msg) { toastr.error(msg); },
+        toastWarning(msg) { toastr.warning(msg); },
+        toastInfo(msg) { toastr.info(msg); },
+        confirm(options) {
+            return Swal.fire({
+                title: options.title || 'Are you sure?',
+                text: options.text || '',
+                icon: options.icon || 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4f46e5',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: options.confirmText || 'Yes',
+                cancelButtonText: options.cancelText || 'Cancel'
+            });
+        }
+    };
+
+    toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        newestOnTop: true,
+        positionClass: 'toast-top-right',
+        timeOut: 4000,
+        extendedTimeOut: 2000
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        @if (TempData["success"] != null)
+        {
+            <text>SmartNotify.toastSuccess(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["success"]!.ToString())));</text>
+        }
+        @if (TempData["error"] != null)
+        {
+            <text>SmartNotify.toastError(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["error"]!.ToString())));</text>
+        }
+        @if (TempData["warning"] != null)
+        {
+            <text>SmartNotify.toastWarning(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["warning"]!.ToString())));</text>
+        }
+
+        document.querySelectorAll('[data-confirm]').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                const form = el.closest('form');
+                SmartNotify.confirm({
+                    title: el.getAttribute('data-confirm-title') || 'Confirm',
+                    text: el.getAttribute('data-confirm-text') || 'This action cannot be undone.',
+                    confirmText: el.getAttribute('data-confirm-btn') || 'Yes, proceed'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        if (form) form.submit();
+                        else if (el.href) window.location = el.href;
+                    }
+                });
+            });
+        });
+    });
+</script>

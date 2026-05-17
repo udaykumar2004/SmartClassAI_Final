@@ -1,0 +1,94 @@
+@model List<SmartClassAI.WebApp.Controllers.AdminUserListItem>
+@using SmartClassAI.WebApp.Utility
+
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0"><i class="fa fa-users me-2"></i>User Management</h4>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+        </div>
+
+        <form method="get" class="row g-2 mb-4">
+            <div class="col-md-8">
+                <input name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by name or email..." />
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var u = item.User;
+                        <tr>
+                            <td>@u.FullName</td>
+                            <td>@u.Email</td>
+                            <td>
+                                @foreach (var role in item.Roles)
+                                {
+                                    <span class="badge bg-primary me-1">@role</span>
+                                }
+                            </td>
+                            <td>
+                                @if (u.IsSuspended)
+                                {
+                                    <span class="badge bg-danger">Suspended</span>
+                                }
+                                else if (u.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td class="text-nowrap">
+                                <form asp-action="SetRole" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@u.Id" />
+                                    <select name="role" class="form-select form-select-sm d-inline-block" style="width:auto" onchange="this.form.submit()">
+                                        <option value="">Role...</option>
+                                        <option value="@SD.Role_Admin">Admin</option>
+                                        <option value="@SD.Role_Teacher">Teacher</option>
+                                        <option value="@SD.Role_Student">Student</option>
+                                    </select>
+                                </form>
+                                <form asp-action="ToggleSuspend" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@u.Id" />
+                                    <button type="submit" class="btn btn-sm btn-warning" data-confirm data-confirm-title="@(u.IsSuspended ? "Unsuspend?" : "Suspend?")" data-confirm-text="@u.Email">
+                                        @(u.IsSuspended ? "Unsuspend" : "Suspend")
+                                    </button>
+                                </form>
+                                <form asp-action="DeleteUser" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@u.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger" data-confirm data-confirm-title="Delete user?" data-confirm-text="@u.Email">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

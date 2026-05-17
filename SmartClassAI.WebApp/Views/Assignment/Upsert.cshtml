@@ -1,0 +1,501 @@
+﻿@model SmartClassAI.Models.Assignment
+
+@{
+    ViewData["Title"] = Model.Id == 0
+        ? "Create Assignment"
+        : "Update Assignment";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet">
+
+<style>
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        background: linear-gradient(135deg, #0f172a, #111827);
+        min-height: 100vh;
+    }
+
+    .glass-card {
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 14px;
+        padding: 12px 15px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.08);
+        color: white;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: none;
+            border-color: #6366f1;
+            background: rgba(255,255,255,0.12);
+            color: white;
+        }
+
+    textarea.form-control {
+        min-height: 140px;
+    }
+
+    .form-label {
+        color: white;
+        margin-bottom: 8px;
+    }
+
+    .text-muted-custom {
+        color: rgba(255,255,255,0.7);
+    }
+
+    .switch-card {
+        background: rgba(255,255,255,0.06);
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .btn-custom {
+        border-radius: 50px;
+        padding: 12px 28px;
+        font-weight: 600;
+    }
+
+    .title-text {
+        color: white;
+        font-size: 34px;
+        font-weight: 700;
+    }
+
+    .sub-title {
+        color: rgba(255,255,255,0.7);
+    }
+
+    .validation-summary-errors ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .validation-summary-errors li {
+        color: #ff6b6b;
+    }
+
+    .text-danger {
+        font-size: 14px;
+    }
+
+    .current-file-card {
+        background: rgba(255,255,255,0.06);
+        border-radius: 18px;
+    }
+
+    .form-check-label {
+        color: white;
+    }
+
+    .form-check-input {
+        width: 3rem;
+        height: 1.5rem;
+    }
+
+    option {
+        color: black;
+    }
+</style>
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <div class="card glass-card border-0 rounded-5">
+
+                <div class="card-body p-5">
+
+                    <!-- ======================= -->
+                    <!-- HEADER -->
+                    <!-- ======================= -->
+
+                    <div class="mb-5">
+
+                        @if (Model.Id == 0)
+                        {
+                            <h1 class="title-text">
+                                Create Assignment 📚
+                            </h1>
+
+                            <p class="sub-title">
+                                Create and publish a classroom assignment
+                            </p>
+                        }
+                        else
+                        {
+                            <h1 class="title-text">
+                                Update Assignment ✏️
+                            </h1>
+
+                            <p class="sub-title">
+                                Modify assignment information
+                            </p>
+                        }
+
+                    </div>
+
+                    <!-- ======================= -->
+                    <!-- VALIDATION SUMMARY -->
+                    <!-- ======================= -->
+
+                    <div asp-validation-summary="All"
+                         class="text-danger mb-3"></div>
+
+                    <!-- ======================= -->
+                    <!-- FORM START -->
+                    <!-- ======================= -->
+
+                    <form method="post"
+                          enctype="multipart/form-data">
+
+                        <!-- HIDDEN FIELDS -->
+
+                        <input asp-for="Id" type="hidden" />
+
+                        <!-- VERY IMPORTANT -->
+                        <!-- FIXES ClassroomId = 0 -->
+
+                        <input asp-for="ClassroomId"
+                               type="hidden" />
+
+                        <input asp-for="FileUrl"
+                               type="hidden" />
+
+                        <!-- ======================= -->
+                        <!-- TITLE -->
+                        <!-- ======================= -->
+
+                        <div class="mb-4">
+
+                            <label asp-for="Title"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <input asp-for="Title"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter assignment title" />
+
+                            <span asp-validation-for="Title"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <!-- ======================= -->
+                        <!-- DESCRIPTION -->
+                        <!-- ======================= -->
+
+                        <div class="mb-4">
+
+                            <label asp-for="Description"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <textarea asp-for="Description"
+                                      class="form-control"
+                                      placeholder="Enter assignment description">
+                            </textarea>
+
+                            <span asp-validation-for="Description"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <!-- ======================= -->
+                        <!-- DUE DATE + MARKS -->
+                        <!-- ======================= -->
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="DueDate"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="DueDate"
+                                       type="datetime-local"
+                                       class="form-control" />
+
+                                <span asp-validation-for="DueDate"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="TotalMarks"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="TotalMarks"
+                                       class="form-control"
+                                       placeholder="Enter total marks" />
+
+                                <span asp-validation-for="TotalMarks"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                        </div>
+
+                        <!-- ======================= -->
+                        <!-- STATUS -->
+                        <!-- ======================= -->
+
+                        <div class="mb-4">
+
+                            <label asp-for="Status"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <select asp-for="Status"
+                                    class="form-select">
+
+                                <option value="Draft">
+                                    Draft
+                                </option>
+
+                                <option value="Published">
+                                    Published
+                                </option>
+
+                                <option value="Closed">
+                                    Closed
+                                </option>
+
+                                <option value="Archived">
+                                    Archived
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="Status"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <!-- ======================= -->
+                        <!-- FILE UPLOAD -->
+                        <!-- ======================= -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label fw-semibold">
+
+                                Assignment Attachment
+
+                            </label>
+
+                            <input type="file"
+                                   name="file"
+                                   class="form-control"
+                                   accept=".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg,.zip" />
+
+                            <small class="text-muted-custom">
+
+                                Allowed:
+                                PDF, DOCX, PPT, Images, ZIP
+                                (Max 10MB)
+
+                            </small>
+
+                            <!-- CURRENT FILE -->
+                            @if (!string.IsNullOrEmpty(Model.FileUrl))
+                            {
+                                <div class="mt-4">
+
+                                    <div class="card current-file-card border-0">
+
+                                        <div class="card-body d-flex justify-content-between align-items-center">
+
+                                            <div class="text-white">
+
+                                                <strong>
+                                                    Current Uploaded File
+                                                </strong>
+
+                                            </div>
+
+                                            <a href="@Model.FileUrl"
+                                               target="_blank"
+                                               class="btn btn-dark rounded-pill px-4">
+
+                                                View File
+
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            }
+
+                        </div>
+
+                        <!-- ======================= -->
+                        <!-- SETTINGS -->
+                        <!-- ======================= -->
+
+                        <div class="row">
+
+                            <!-- LATE SUBMISSION -->
+
+                            <div class="col-md-6 mb-4">
+
+                                <div class="card switch-card border-0">
+
+                                    <div class="card-body">
+
+                                        <div class="form-check form-switch">
+
+                                            <input asp-for="AllowLateSubmission"
+                                                   class="form-check-input" />
+
+                                            <label asp-for="AllowLateSubmission"
+                                                   class="form-check-label fw-semibold">
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- COMMENTS -->
+
+                            <div class="col-md-6 mb-4">
+
+                                <div class="card switch-card border-0">
+
+                                    <div class="card-body">
+
+                                        <div class="form-check form-switch">
+
+                                            <input asp-for="AllowComments"
+                                                   class="form-check-input" />
+
+                                            <label asp-for="AllowComments"
+                                                   class="form-check-label fw-semibold">
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- ======================= -->
+                        <!-- SCHEDULE -->
+                        <!-- ======================= -->
+
+                        <div class="card switch-card border-0 mb-4">
+
+                            <div class="card-body">
+
+                                <div class="form-check form-switch mb-4">
+
+                                    <input asp-for="IsScheduled"
+                                           class="form-check-input" />
+
+                                    <label asp-for="IsScheduled"
+                                           class="form-check-label fw-semibold">
+                                    </label>
+
+                                </div>
+
+                                <div>
+
+                                    <label asp-for="ScheduledAt"
+                                           class="form-label fw-semibold">
+                                    </label>
+
+                                    <input asp-for="ScheduledAt"
+                                           type="datetime-local"
+                                           class="form-control" />
+
+                                    <span asp-validation-for="ScheduledAt"
+                                          class="text-danger"></span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- ======================= -->
+                        <!-- BUTTONS -->
+                        <!-- ======================= -->
+
+                        <div class="d-flex flex-wrap gap-3">
+
+                            @if (Model.Id == 0)
+                            {
+                                <button type="submit"
+                                        class="btn btn-primary btn-custom">
+
+                                    Create Assignment
+
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="submit"
+                                        class="btn btn-warning btn-custom">
+
+                                    Update Assignment
+
+                                </button>
+                            }
+
+                            <a asp-action="Index"
+                               asp-route-classroomId="@Model.ClassroomId"
+                               class="btn btn-secondary btn-custom">
+
+                                Back
+
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                    <!-- ======================= -->
+                    <!-- FORM END -->
+                    <!-- ======================= -->
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

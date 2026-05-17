@@ -1,0 +1,119 @@
+﻿@model IEnumerable<SmartClassAI.Models.Enrollment>
+
+@{
+    ViewData["Title"] = "Students";
+
+    int classroomId = ViewBag.ClassroomId;
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold">
+
+
+                Classroom Students
+
+            </h2>
+
+            <p class="text-muted">
+
+                Manage enrolled students
+
+            </p>
+
+        </div>
+
+        <a asp-controller="Classroom"
+           asp-action="Details"
+           asp-route-id="@classroomId"
+           class="btn btn-secondary rounded-pill px-4">
+
+            Back
+
+        </a>
+
+    </div>
+
+    <!-- STUDENT LIST -->
+    @if (Model.Any())
+    {
+        @foreach (var item in Model)
+        {
+            <div class="card border-0 shadow rounded-4 mb-3">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+
+                        <!-- LEFT -->
+
+                        <div>
+
+                            <h5 class="fw-bold mb-1">
+
+                                @item.Student?.FullName
+
+                            </h5>
+
+                            <small class="text-muted">
+
+                                Joined:
+                                @item.JoinedAt
+                                .ToShortDateString()
+
+                            </small>
+
+                        </div>
+
+                        <!-- RIGHT -->
+
+                        <div>
+
+                            <a asp-action="Remove"
+                               asp-route-id="@item.Id"
+                               class="btn btn-danger btn-sm rounded-pill"
+                               onclick="return confirm('Remove student from classroom?')">
+
+                                Remove
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="card border-0 shadow rounded-4">
+
+            <div class="card-body text-center p-5">
+
+                <h4 class="fw-bold mb-3">
+
+                    No Students Found
+
+                </h4>
+
+                <p class="text-muted">
+
+                    No students have joined this classroom yet.
+
+                </p>
+
+            </div>
+
+        </div>
+    }
+
+</div>

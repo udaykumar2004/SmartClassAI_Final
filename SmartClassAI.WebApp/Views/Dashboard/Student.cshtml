@@ -1,0 +1,52 @@
+@model SmartClassAI.WebApp.Services.StudentStatsDto
+@{
+    ViewData["Title"] = "Student Hub";
+    ViewData["PageSubtitle"] = "Track your classes and assignments";
+}
+
+<partial name="_PageHeader" />
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <i class="fa-solid fa-book-open icon"></i>
+        <div class="label">Classrooms</div>
+        <div class="value">@Model.TotalClassrooms</div>
+    </div>
+    <div class="stat-card">
+        <i class="fa-solid fa-list-check icon"></i>
+        <div class="label">Assignments</div>
+        <div class="value">@Model.TotalAssignments</div>
+    </div>
+    <div class="stat-card">
+        <i class="fa-solid fa-paper-plane icon"></i>
+        <div class="label">Submitted</div>
+        <div class="value">@Model.SubmittedCount</div>
+    </div>
+    <div class="stat-card">
+        <i class="fa-solid fa-star icon"></i>
+        <div class="label">Avg. marks</div>
+        <div class="value">@(Model.AverageMarks?.ToString() ?? "—")</div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="sc-card p-4 h-100">
+            <h6 class="text-muted text-uppercase small fw-bold">Pending</h6>
+            <h2 class="fw-bold text-warning">@Model.PendingCount</h2>
+            <p class="text-muted small mb-0">Assignments not yet submitted</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="sc-card p-4 h-100">
+            <h6 class="text-muted text-uppercase small fw-bold">Graded</h6>
+            <h2 class="fw-bold text-success">@Model.GradedCount</h2>
+            <p class="text-muted small mb-0">Reviewed by your teachers</p>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 d-flex gap-2">
+    <a asp-controller="Classroom" asp-action="Join" class="btn btn-sc-primary">Join class</a>
+    <a asp-controller="Classroom" asp-action="Index" class="btn btn-sc-outline">My classes</a>
+</div>

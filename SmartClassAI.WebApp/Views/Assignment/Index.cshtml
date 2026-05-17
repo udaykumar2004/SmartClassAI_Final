@@ -1,0 +1,411 @@
+﻿@model IEnumerable<SmartClassAI.Models.Assignment>
+
+@using SmartClassAI.WebApp.Utility
+@using Microsoft.AspNetCore.Identity
+@using SmartClassAI.Models
+
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Assignments";
+
+    int classroomId = ViewBag.ClassroomId ?? 0;
+
+    bool isAdmin = ViewBag.IsAdmin ?? false;
+    bool isClassTeacher = ViewBag.IsClassTeacher ?? false;
+
+    bool canManage = isAdmin || isClassTeacher;
+
+    int studentCount = ViewBag.StudentCount ?? 0;
+
+    var submissionCounts =
+        ViewBag.SubmissionCounts as Dictionary<int, int>
+        ?? new Dictionary<int, int>();
+
+    var mySubmissions =
+        ViewBag.MySubmissions as Dictionary<int, string>
+        ?? new Dictionary<int, string>();
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+    body {
+        background: radial-gradient(circle at top, #0b1220, #05070d);
+        font-family: 'Inter', sans-serif;
+        color: #fff;
+    }
+
+    .page-header {
+        padding: 30px 0;
+    }
+
+    .glass {
+        background: rgba(255,255,255,0.06);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 22px;
+    }
+
+    .assignment-card {
+        transition: 0.35s ease;
+        padding: 22px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .assignment-card:hover {
+            transform: translateY(-6px);
+            background: rgba(255,255,255,0.09);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.45);
+        }
+
+    .title {
+        font-size: 38px;
+        font-weight: 800;
+        background: linear-gradient(90deg,#60a5fa,#34d399);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .sub {
+        color: #94a3b8;
+    }
+
+    .badgex {
+        padding: 7px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .btnx {
+        border-radius: 999px;
+        padding: 9px 18px;
+        transition: 0.25s;
+        font-weight: 600;
+    }
+
+        .btnx:hover {
+            transform: scale(1.05);
+        }
+
+    .cta {
+        background: linear-gradient(135deg,#4f46e5,#06b6d4);
+        border: none;
+        color: white;
+    }
+
+    .edit-btn {
+        background: linear-gradient(135deg,#f59e0b,#f97316);
+        border: none;
+        color: white;
+    }
+
+    .submission-btn {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: white;
+    }
+
+    .assignment-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .description {
+        color: #cbd5e1;
+        line-height: 1.7;
+        margin-bottom: 14px;
+    }
+
+    .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .empty-state {
+        padding: 70px 20px;
+    }
+
+    .empty-icon {
+        font-size: 60px;
+        margin-bottom: 15px;
+    }
+
+    .stats-box {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    @@media(max-width:768px) {
+
+        .assignment-card {
+            padding: 18px;
+        }
+
+        .assignment-title {
+            font-size: 20px;
+        }
+
+        .title {
+            font-size: 30px;
+        }
+    }
+
+</style>
+
+<div class="container py-5">
+
+    <!-- HEADER -->
+    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+        <div>
+            <h1 class="title">Assignments</h1>
+
+            <p class="sub mb-2">
+                Track assignments, submissions, deadlines and classroom progress
+            </p>
+
+            <div class="d-flex gap-2 flex-wrap">
+
+                <span class="badgex">
+                    🏫 Classroom ID: @classroomId
+                </span>
+
+                <span class="badgex">
+                    👨‍🎓 Students: @studentCount
+                </span>
+
+            </div>
+        </div>
+
+        @if (canManage)
+        {
+            <a asp-controller="Assignment"
+               asp-action="Upsert"
+               asp-route-classroomId="@classroomId"
+               class="btn btnx cta shadow">
+
+                + Create Assignment
+
+            </a>
+        }
+
+    </div>
+
+    <!-- ASSIGNMENT LIST -->
+    @if (Model != null && Model.Any())
+    {
+        foreach (var item in Model.OrderByDescending(x => x.CreatedAt))
+        {
+            bool isClosed = item.DueDate < DateTime.UtcNow;
+
+            int submissionCount =
+            submissionCounts.ContainsKey(item.Id)
+            ? submissionCounts[item.Id]
+            : 0;
+
+            string myStatus =
+            mySubmissions.ContainsKey(item.Id)
+            ? mySubmissions[item.Id]
+            : "";
+
+            <div class="glass assignment-card mb-4">
+
+                <div class="d-flex justify-content-between flex-wrap gap-4">
+
+                    <!-- LEFT -->
+                    <div style="flex:1; min-width:280px;">
+
+                        <a asp-action="Details" asp-route-id="@item.Id">
+
+                            <h3 class="assignment-title">
+                                @item.Title
+                            </h3>
+
+                        </a>
+
+                        <p class="description">
+                            @(string.IsNullOrWhiteSpace(item.Description)
+                                                ? "No description available."
+                                                : item.Description.Length > 180
+                                                ? item.Description.Substring(0, 180) + "..."
+                                                : item.Description)
+                        </p>
+
+                        <div class="meta-row">
+
+                            <span class="badgex">
+                                ⭐ @item.TotalMarks Marks
+                            </span>
+
+                            @if (isClosed)
+                            {
+                                <span class="badgex" style="background:#7f1d1d;">
+                                    🔒 Closed
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badgex" style="background:#14532d;">
+                                    ✅ Active
+                                </span>
+                            }
+
+                            <span class="badgex">
+                                📅 @item.DueDate.ToLocalTime().ToString("dd MMM yyyy")
+                            </span>
+
+                            <span class="badgex">
+                                👁️ @item.ViewCount Views
+                            </span>
+
+                        </div>
+
+                        <!-- STUDENT STATUS -->
+                        @if (!canManage)
+                        {
+                            <div class="stats-box">
+
+                                @if (!string.IsNullOrWhiteSpace(myStatus))
+                                {
+                                    <span class="badgex"
+                                          style="background:#1e3a8a;">
+                                        📤 @myStatus
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badgex"
+                                          style="background:#78350f;">
+                                        ⏳ Not Submitted
+                                    </span>
+                                }
+
+                            </div>
+                        }
+
+                        <!-- TEACHER STATS -->
+                        @if (canManage)
+                        {
+                            <div class="stats-box">
+
+                                <span class="badgex"
+                                      style="background:#0f172a;">
+
+                                    📚 @submissionCount / @studentCount Submissions
+
+                                </span>
+
+                            </div>
+                        }
+
+                    </div>
+
+                    <!-- RIGHT ACTIONS -->
+                    <div class="d-flex flex-column justify-content-center gap-2">
+
+                        <!-- OPEN FOR EVERYONE -->
+                        <a asp-controller="Assignment"
+                           asp-action="Details"
+                           asp-route-id="@item.Id"
+                           class="btn btnx cta">
+
+                            Open
+
+                        </a>
+
+                        @if (canManage)
+                        {
+                            <a asp-controller="AssignmentSubmission"
+                               asp-action="Index"
+                               asp-route-assignmentId="@item.Id"
+                               class="btn btnx submission-btn">
+
+                                Submissions
+
+                            </a>
+
+                            <a asp-controller="Assignment"
+                               asp-action="Upsert"
+                               asp-route-id="@item.Id"
+                               asp-route-classroomId="@item.ClassroomId"
+                               class="btn btnx edit-btn">
+
+                                Edit
+
+                            </a>
+
+                            <form asp-action="Delete"
+                                  method="post"
+                                  onsubmit="return confirm('Delete this assignment?');">
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@item.Id" />
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btnx btn-danger w-100">
+
+                                    Delete
+
+                                </button>
+
+                            </form>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="glass text-center empty-state">
+
+            <div class="empty-icon">
+                📂
+            </div>
+
+            <h2 class="fw-bold mb-3">
+                No Assignments Found
+            </h2>
+
+            <p class="sub mb-4">
+                There are no assignments available in this classroom yet.
+            </p>
+
+            @if (canManage)
+            {
+                <a asp-controller="Assignment"
+                   asp-action="Upsert"
+                   asp-route-classroomId="@classroomId"
+                   class="btn btnx cta">
+
+                    + Create First Assignment
+
+                </a>
+            }
+
+        </div>
+    }
+
+</div>

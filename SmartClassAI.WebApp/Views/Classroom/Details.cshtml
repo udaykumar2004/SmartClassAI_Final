@@ -1,0 +1,344 @@
+@model SmartClassAI.Models.ViewModels.ClassroomDetailsVM
+
+@using SmartClassAI.WebApp.Utility
+@using Microsoft.AspNetCore.Identity
+@using SmartClassAI.Models
+
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    string userId = user?.Id ?? "";
+
+    int classroomId = Model.Classroom.Id;
+
+    // =========================
+    // SAFE NULL GUARD (IMPORTANT FIX)
+    // =========================
+    var students = Model.Students ?? new List<ApplicationUser>();
+
+    // =========================
+    // GLOBAL ROLE
+    // =========================
+    bool isAdmin = user != null && await UserManager.IsInRoleAsync(user, SD.Role_Admin);
+
+    bool isTeacherRole = user != null && await UserManager.IsInRoleAsync(user, SD.Role_Teacher);
+    bool isStudentRole = user != null && await UserManager.IsInRoleAsync(user, SD.Role_Student);
+
+    // =========================
+    // CLASSROOM ROLE LOGIC
+    // =========================
+    bool isClassTeacher = user != null && Model.Classroom.TeacherId == userId;
+
+    bool isEnrolledStudent =
+        students.Any(s => s.Id == userId);
+
+    bool isClassMember = isClassTeacher || isEnrolledStudent;
+
+    // =========================
+    // PERMISSIONS (FIXED CLEAN LOGIC)
+    // =========================
+    bool canManageClassroom = isAdmin || isClassTeacher;
+
+    bool canAccessClassroom = isAdmin || isClassMember;
+
+    bool canChat = canAccessClassroom;
+
+    bool canJoinVideoCall = isClassMember;
+
+    bool canStartVideoCall = isAdmin || isClassTeacher;
+
+    // =========================
+    // ROLE TEXT
+    // =========================
+    string roleText =
+        isAdmin ? "Admin"
+        : isClassTeacher && isEnrolledStudent ? "Teacher + Student"
+        : isClassTeacher ? "Teacher"
+        : isEnrolledStudent ? "Student"
+        : "Guest";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+<style>
+    :root {
+        --primary: #4f46e5;
+        --secondary: #6366f1;
+        --dark: #0f172a;
+        --light: #f8fafc;
+    }
+
+    body {
+        background: #eef2ff;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+        border-radius: 28px;
+        padding: 45px;
+        background: linear-gradient(135deg,#4f46e5,#6366f1);
+        color: white;
+        box-shadow: 0 20px 45px rgba(79,70,229,0.25);
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 900;
+    }
+
+    .glass-card {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 22px;
+        backdrop-filter: blur(16px);
+    }
+
+    .join-code {
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: 4px;
+    }
+
+    .sidebar-card,
+    .modern-card,
+    .feature-card,
+    .stream-card {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 35px rgba(15,23,42,0.06);
+    }
+
+    .sidebar-card {
+        padding: 22px;
+    }
+
+    .modern-card {
+        padding: 24px;
+    }
+
+    .feature-card {
+        padding: 20px;
+        transition: .25s;
+        height: 100%;
+    }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .stream-card {
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .nav-link-modern {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        border-radius: 16px;
+        text-decoration: none;
+        color: #475569;
+        font-weight: 600;
+        transition: .2s;
+    }
+
+        .nav-link-modern:hover {
+            background: rgba(79,70,229,0.08);
+            color: var(--primary);
+        }
+
+        .nav-link-modern.active {
+            background: linear-gradient(135deg,#4f46e5,#6366f1);
+            color: white;
+        }
+
+    .avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#4f46e5,#6366f1);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 800;
+    }
+
+    .icon-circle {
+        width: 55px;
+        height: 55px;
+        border-radius: 16px;
+        background: rgba(79,70,229,0.1);
+        color: var(--primary);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+    }
+
+    .quick-btn {
+        width: 100%;
+        border-radius: 14px;
+        font-weight: 600;
+    }
+
+    .stats-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
+</style>
+
+<div class="container-fluid py-4">
+
+    <!-- HERO -->
+    <div class="hero-section mb-4">
+
+        <div class="row align-items-center g-4">
+
+            <div class="col-lg-8">
+
+                <div class="d-flex flex-wrap gap-2 mb-3">
+
+                    <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                        <i class="fas fa-circle text-success me-1"></i>
+                        @(Model.IsLive ? "Live Classroom" : "Offline")
+                    </span>
+
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                        <i class="fas fa-users me-1"></i>
+                        @Model.StudentCount Students
+                    </span>
+
+                    <span class="badge bg-danger px-3 py-2 rounded-pill">
+                        <i class="fas fa-tasks me-1"></i>
+                        @Model.AssignmentCount Assignments
+                    </span>
+
+                    <span class="badge bg-dark px-3 py-2 rounded-pill">
+                        Classroom ID : @classroomId
+                    </span>
+
+                </div>
+
+                <h1 class="hero-title">@Model.Classroom.Name</h1>
+
+                <p><i class="fas fa-book-open me-2"></i> Subject: @Model.Classroom.Subject</p>
+                <p><i class="fas fa-layer-group me-2"></i> Section: @Model.Classroom.Section</p>
+
+                <!-- VIDEO CALL (FIXED SAFE BLOCK) -->
+                @if (canJoinVideoCall)
+                {
+                    <div class="mt-3">
+
+                        @if (canStartVideoCall)
+                        {
+                            <a asp-controller="Meeting"
+                               asp-action="Start"
+                               asp-route-classroomId="@classroomId"
+                               class="btn btn-danger quick-btn">
+
+                                <i class="fas fa-video me-2"></i> Start Meeting
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Meeting"
+                               asp-action="Join"
+                               asp-route-classroomId="@classroomId"
+                               class="btn btn-success quick-btn">
+
+                                <i class="fas fa-video me-2"></i> Join Meeting
+                            </a>
+                        }
+
+                    </div>
+                }
+
+                <div class="glass-card p-4 mt-3">
+
+                    <h5>Welcome to @Model.Classroom.Name</h5>
+
+                    <p>You joined as <b>@roleText</b></p>
+
+                    @if (isClassTeacher && isEnrolledStudent)
+                    {
+                        <span class="badge bg-warning text-dark">
+                            Teacher + Student Mode
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+            <!-- JOIN CODE -->
+            <div class="col-lg-4">
+                <div class="glass-card text-center p-4">
+                    <p class="small text-uppercase">Join Code</p>
+                    <div class="join-code">@Model.Classroom.JoinCode</div>
+
+                    <button class="btn btn-light rounded-pill px-4" onclick="copyCode()">
+                        <i class="fas fa-copy me-2"></i> Copy Code
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SIDEBAR + CONTENT (UNCHANGED UI BELOW) -->
+    <div class="row g-4">
+
+        <div class="col-lg-3">
+
+            <div class="sidebar-card mb-4">
+
+                <h6 class="text-uppercase text-muted fw-bold mb-4">
+                    Classroom Navigation
+                </h6>
+
+                <div class="d-flex flex-column gap-2">
+
+                    <a href="#" class="nav-link-modern active">
+                        <i class="fas fa-stream"></i> Stream
+                    </a>
+
+                    <a asp-controller="Assignment"
+                       asp-action="Index"
+                       asp-route-classroomId="@classroomId"
+                       class="nav-link-modern">
+
+                        <i class="fas fa-tasks"></i> Assignments
+                    </a>
+
+                    <a href="#" class="nav-link-modern">
+                        <i class="fas fa-users"></i> People
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-9">
+            <!-- KEEP YOUR ORIGINAL CONTENT HERE -->
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function copyCode() {
+        copyJoinCode('@Model.Classroom.JoinCode');
+    }
+</script>

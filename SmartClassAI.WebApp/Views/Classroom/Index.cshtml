@@ -1,0 +1,97 @@
+@model IEnumerable<SmartClassAI.Models.Classroom>
+@using SmartClassAI.WebApp.Utility
+
+@{
+    ViewData["Title"] = "My Classes";
+    ViewData["PageSubtitle"] = "Manage and open your smart classrooms";
+
+    var teacherIds = ViewBag.TeacherClassIds as HashSet<int> ?? new HashSet<int>();
+    var memberIds = ViewBag.MemberClassIds as HashSet<int> ?? new HashSet<int>();
+    var currentUserId = ViewBag.CurrentUserId as string ?? "";
+}
+
+<partial name="_PageHeader" />
+
+@section PageActions {
+    <a asp-action="Join" class="btn btn-sc-outline"><i class="fa-solid fa-link me-1"></i> Join</a>
+    <a asp-action="Upsert" class="btn btn-sc-primary"><i class="fa-solid fa-plus me-1"></i> Create</a>
+}
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <div class="emoji">📚</div>
+        <h4 class="fw-bold">No classrooms yet</h4>
+        <p class="text-muted">Create a class or join one with a code to get started.</p>
+        <div class="d-flex gap-2 justify-content-center mt-3">
+            <a asp-action="Upsert" class="btn btn-sc-primary">Create classroom</a>
+            <a asp-action="Join" class="btn btn-sc-outline">Join with code</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="class-grid">
+        @foreach (var item in Model)
+        {
+            bool isTeacher = item.TeacherId == currentUserId || teacherIds.Contains(item.Id);
+            bool isClassOwner = item.TeacherId == currentUserId;
+            bool isStudentOnly = memberIds.Contains(item.Id) && !isTeacher;
+
+            <div class="class-card-link">
+                <article class="class-card h-100">
+                    <div class="class-card-banner"></div>
+                    <div class="class-card-body">
+                        <div class="class-card-avatar">🎓</div>
+                        <h3>@item.Name</h3>
+                        <p class="text-muted small mb-2"><strong>@item.Subject</strong> · Section @item.Section</p>
+                        <span class="join-code-pill">@item.JoinCode</span>
+                        <div class="mt-2 d-flex gap-2 flex-wrap">
+                            @if (isTeacher)
+                            {
+                                <span class="badge-role badge-teacher">Teacher</span>
+                            }
+                            @if (isStudentOnly || (memberIds.Contains(item.Id) && isTeacher))
+                            {
+                                <span class="badge-role badge-student">Student</span>
+                            }
+                            @if (item.IsArchived)
+                            {
+                                <span class="badge bg-secondary">Archived</span>
+                            }
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="fw-bold text-decoration-none" style="color:var(--primary)">
+                                Open class <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
+                            <div class="d-flex gap-1 align-items-center">
+                                @if (isStudentOnly)
+                                {
+                                    <form method="post" asp-action="Leave" asp-route-id="@item.Id" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill"
+                                                data-confirm data-confirm-title="Leave classroom?" data-confirm-text="You can rejoin with the join code.">
+                                            Leave
+                                        </button>
+                                    </form>
+                                }
+                                @if (isClassOwner)
+                                {
+                                    <form method="post" asp-action="Delete" asp-route-id="@item.Id" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill"
+                                                data-confirm
+                                                data-confirm-title="Delete classroom?"
+                                                data-confirm-text="This will permanently delete '@item.Name' and all its content. This cannot be undone.">
+                                            <i class="fa-solid fa-trash me-1"></i> Delete
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+}

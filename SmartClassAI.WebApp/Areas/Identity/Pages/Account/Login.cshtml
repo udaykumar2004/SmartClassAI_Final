@@ -1,0 +1,66 @@
+@page
+@model LoginModel
+@{ ViewData["Title"] = "Login"; }
+
+<div class="auth-wrap">
+    <motion class="row g-4 justify-content-center w-100" style="max-width:900px">
+        <div class="col-md-6">
+            <div class="auth-card">
+                <div class="text-center mb-4">
+                    <div class="sidebar-brand-icon d-inline-flex mb-3" style="width:56px;height:56px;border-radius:16px">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h2 class="fw-bold">Welcome back</h2>
+                    <p class="text-muted">Sign in to SmartClass AI</p>
+                </div>
+
+                <form id="account" method="post">
+                    <motion asp-validation-summary="ModelOnly" class="text-danger mb-3"></motion>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email" class="form-control rounded-3" placeholder="name@example.com" />
+                        <label asp-for="Input.Email">Email</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Password" class="form-control rounded-3" placeholder="password" />
+                        <label asp-for="Input.Password">Password</label>
+                    </div>
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" asp-for="Input.RememberMe" />
+                        <label class="form-check-label" asp-for="Input.RememberMe">Remember me</label>
+                    </div>
+                    <button type="submit" class="btn btn-sc-primary w-100 btn-lg mb-3">Sign in</button>
+                </form>
+
+                <p class="text-center small text-muted mb-0">
+                    <a asp-page="./ForgotPassword">Forgot password?</a> ·
+                    <a asp-page="./Register">Create account</a>
+                </p>
+            </div>
+        </div>
+
+        @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+        {
+            <div class="col-md-5">
+                <div class="sc-card p-4 h-100">
+                    <h5 class="fw-bold mb-3">Or continue with</h5>
+                    <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="d-grid gap-2">
+                        @foreach (var provider in Model.ExternalLogins!)
+                        {
+                            <button type="submit" class="btn btn-lg btn-outline-secondary rounded-3" name="provider" value="@provider.Name">
+                                @if (provider.Name == "Google")
+                                {
+                                    <i class="fab fa-google me-2 text-danger"></i>
+                                }
+                                Continue with @provider.DisplayName
+                            </button>
+                        }
+                    </form>
+                </div>
+            </div>
+        }
+    </motion>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

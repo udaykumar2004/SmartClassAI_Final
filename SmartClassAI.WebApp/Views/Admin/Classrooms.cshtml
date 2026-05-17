@@ -1,0 +1,45 @@
+@model IEnumerable<SmartClassAI.Models.Classroom>
+
+@{
+    ViewData["Title"] = "Manage Classrooms";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-4">
+            <h4 class="mb-0"><i class="fa fa-chalkboard me-2"></i>All Classrooms</h4>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Back</a>
+        </div>
+
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Teacher</th>
+                    <th>Code</th>
+                    <th>Created</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td>@c.Name</td>
+                        <td>@(c.Teacher?.FullName ?? c.Teacher?.Email ?? "—")</td>
+                        <td><code>@c.JoinCode</code></td>
+                        <td>@c.CreatedAt.ToString("d")</td>
+                        <td>
+                            <a asp-controller="Classroom" asp-action="Details" asp-route-id="@c.Id" class="btn btn-sm btn-primary">Open</a>
+                            <form asp-action="DeleteClassroom" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@c.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger" data-confirm data-confirm-title="Delete classroom?" data-confirm-text="@c.Name">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
