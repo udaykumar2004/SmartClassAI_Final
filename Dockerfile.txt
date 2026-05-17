@@ -1,0 +1,30 @@
+# 1. .NET 10 SDK Image use karenge build ke liye
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# 2. Saari layers ki .csproj files copy karenge
+COPY ["SmartClassAI.WebApp/SmartClassAI.WebApp.csproj", "SmartClassAI.WebApp/"]
+COPY ["SmartClassAI.Models/SmartClassAI.Models.csproj", "SmartClassAI.Models/"]
+COPY ["SmartClassAI.DataAccess/SmartClassAI.DataAccess.csproj", "SmartClassAI.DataAccess/"]
+
+# 3. Dependencies restore karenge
+RUN dotnet restore "SmartClassAI.WebApp/SmartClassAI.WebApp.csproj"
+
+# 4. Baki poora code copy karke build karenge
+COPY . .
+WORKDIR "/src/SmartClassAI.WebApp"
+RUN dotnet build "SmartClassAI.WebApp.csproj" -c Release -o /app/build
+
+# 5. Project ko publish karenge
+FROM build AS publish
+RUN dotnet publish "SmartClassAI.WebApp.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# 6. Final .NET 10 ASP.NET Runtime image ready karenge execution ke liye
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+# Render ka port setting aur startup command
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+ENTRYPOINT ["dotnet", "SmartClassAI.WebApp.dll"]
